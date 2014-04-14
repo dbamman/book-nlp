@@ -1,0 +1,5 @@
+1342	coref/finalTokenData/austen.tokens
+526	coref/finalTokenData/conrad.heart.tokens
+209	coref/finalTokenData/james.turn.tokens
+120	coref/finalTokenData/stevenson.treasure.120.tokens
+74	coref/finalTokenData/twain.tom.sawyer.74.tokens
