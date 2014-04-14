@@ -45,7 +45,7 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 
 (On a 2.6 GHz MBP, this takes about 3.5 minutes)
 
-tokens/dickens.oliver.tokens contains the original book, one token per line, with part of speech, syntax, coreference and other annotations.  The (tab-separated) format is:
+The main output here is tokens/dickens.oliver.tokens, which contains the original book, one token per line, with part of speech, syntax, NER, coreference and other annotations.  The (tab-separated) format is:
 
 1. Paragraph id
 2. Sentence id
