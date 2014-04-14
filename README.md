@@ -5,6 +5,7 @@ Pipeline for processing books and other long documents, including:
 
 * POS tagging (Stanford)
 * Dependency Parsing (MaltParser)
+* Named entity recognition (Stanford)
 * Character name clustering (e.g., "Tom", "Tom Sawyer", "Mr. Sawyer", "Thomas Sawyer" -> TOM_SAWYER)
 * Quotation speaker identification
 * Coreference (anaphora) resolution
@@ -29,13 +30,13 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 
 -tok <file> : file path to save processed tokens to (or read them from, if it already exists)
 
--p : the path to write all diagnostic files to
+-p : the directory to write all diagnostic files to.  Creates the directory if it does not already exist.
 
 -id : a unique book ID for this book
 
 -printHTML	: print the text as an HTML file with character aliases, coref and speaker ID annotated
 
--f : force the processing of the original text file, even if the <file> in the -tok flag exists (if the -tok <file> exists, the process that would generate it is skipped)
+-f : force the (slower) syntactic processing of the original text file, even if the <file> in the -tok flag exists (if the -tok <file> exists, the process that would parse the original text to create it is skipped)
 
 
 ####Example
@@ -44,7 +45,7 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 
 (On a 2.6 GHz MBP, this takes about 3.5 minutes)
 
-tokens/dickens.oliver.tokens contains the original book, one token per line, with part of speech, syntax and other annotations.  The (tab-separated) format is:
+tokens/dickens.oliver.tokens contains the original book, one token per line, with part of speech, syntax, coreference and other annotations.  The (tab-separated) format is:
 
 1. Paragraph id
 2. Sentence id
@@ -52,19 +53,20 @@ tokens/dickens.oliver.tokens contains the original book, one token per line, wit
 4. Byte start
 5. Byte end
 6. Whitespace following the token (useful for pretty-printing the original text)
-7. Syntax head id (-1 for the sentence root)
+7. Syntactic head id (-1 for the sentence root)
 8. Original token
 9. Normalized token (for quotes etc.)
 10. Lemma
 11. Penn Treebank POS tag
 12. NER tag (PERSON, NUMBER, DATE, DURATION, MISC, TIME, LOCATION, ORDINAL, MONEY, ORGANIZATION, SET, O)
-13. Stanford dependency label
+13. Stanford basic dependency label
 14. Within-quotation flag
+15. Character id (all coreferent tokens share the same character id)
 
 The output/dickens folder will now contain:
 
 * dickens.oliver.twist.html (described above)
-* dickens.oliver.twist.book (a representation of all of the characters' features, in JSON; this will be the input to our character model)
+* dickens.oliver.twist.book (a representation of all of the characters' features, in JSON)
 
 Modifying the code
 ================
@@ -107,8 +109,4 @@ Two parameters control the amount of regularization in the model (higher regular
 
 To use the newly trained weights in the pipeline above, copy them to files/coref.weights or specify them on the novels.BookNLP command line with the -w flag.
 
-Quotation Id
-============
-
-Quotation/Speaker Id is currently deterministic (matching nearby character mentions); but with more annotated training data, this can become a log-linear model as well.
 
