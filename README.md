@@ -1,7 +1,7 @@
 BookNLP
 =======
 
-Pipeline for processing books and other long documents, including:
+Natural language processing pipeline for books and other long documents (in English), including:
 
 * POS tagging (Stanford)
 * Dependency Parsing (MaltParser)
@@ -41,7 +41,7 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 
 ####Example
 
-    ./runjava novels/BookNLP -doc originalTexts/dickens.oliver.pg730.txt -printHTML -p output/dickens -id dickens.oliver.twist -tok tokens/dickens.oliver.tokens -f
+    ./runjava novels/BookNLP -doc data/originalTexts/dickens.oliver.pg730.txt -printHTML -p data/output/dickens -id dickens.oliver.twist -tok data/tokens/dickens.oliver.tokens -f
 
 (On a 2.6 GHz MBP, this takes about 3.5 minutes)
 
@@ -67,6 +67,9 @@ The output/dickens folder will now contain:
 
 * dickens.oliver.twist.html (described above)
 * dickens.oliver.twist.book (a representation of all of the characters' features, in JSON)
+
+
+
 
 Modifying the code
 ================
