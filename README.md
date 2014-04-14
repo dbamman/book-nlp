@@ -12,7 +12,7 @@ Pipeline for processing books and other long documents, including:
 How To Run
 =======
 
-The main executable class is novels/BooksNLP.  `runjava` is a convenience wrapper for executing java (taking care of the classpath, memory, etc.).  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
+The main executable class is novels/BookNLP.  `runjava` is a convenience wrapper for executing java (taking care of the classpath, memory, etc.).  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
 
 
 ####Preliminaries
