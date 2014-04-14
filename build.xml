@@ -1,0 +1,49 @@
+<project name="narrative" default="all" basedir=".">
+
+    <import file="common.xml" />
+
+    <description>
+	Narrative build file
+    </description>
+    <target name="init">
+	<!-- Create the time stamp -->
+	<tstamp/>
+	<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+    <target name="all" depends="jar"/>
+
+    <target name="compile" depends="init" description="compile the source">
+	<!-- Compile the java code from ${src} into ${build} -->
+	<javac srcdir="${src}" destdir="${build}" debug="on" source="1.5" target="1.5" deprecation="on" excludes="**/*.xml">
+	    <classpath>
+		<fileset dir="lib">
+		    <include name="**/*.jar" />
+		</fileset>
+	    </classpath>
+
+	</javac>
+
+    </target>
+
+    <target name="jar" depends="compile" description="generate the book-nlp JAR" >
+	<!-- Create the distribution directory -->
+
+	<!-- Uncomment Exclude when building sandbox core for standalone modules
+	<exclude name="**/hibernate.cfg.xml"/>
+	<exclude name="ehcache.xml"/> -->
+	<antcall target="create-jar">
+	    <param name="jarfile" value="book-nlp.jar" />
+	</antcall>
+    </target>
+
+    <target name="clean" description="clean up">
+	    <!-- Delete the ${build} and ${dist} directory trees -->
+	<delete dir="${build}"/>
+
+    </target>
+
+
+
+</project>

@@ -1,0 +1,41 @@
+<project name="common">
+
+    <!-- set global properties for this build -->
+    <property name="src" location="src"/>
+    <property name="build" location="build"/>
+    <property name="docs" location="docs"/>
+
+
+    <target name="create-jar">
+	<property name="file.set" value="all.build.files" />
+	<property name="jar.basedir" value="${build}" />
+	<tempfile prefix="jar-" property="temp.build.dir" />
+	<!-- Make sure *not* to expand properties for class files. Amazingly
+	     enough, expanding them results in bad magic numbers, apparently
+	     because there are actually strings in the binary files that match
+	     the names of Ant properties.
+	-->
+	<copy todir="${temp.build.dir}">
+	    <fileset dir="${jar.basedir}">
+		<include name="**/*.class" />
+	    </fileset>
+	</copy>
+	<!-- Everything else is fine, though - UNLESS the user wants to
+	     exclude non-class files. -->
+	<copy todir="${temp.build.dir}">
+	    <fileset dir="${jar.basedir}">
+		<exclude name="**/*.class" />
+	    </fileset>
+
+	    <filterchain>
+		<expandproperties />
+	    </filterchain>
+	</copy>
+
+	<!-- Now actually create the JAR and delete the temporary
+	     directory. -->
+	<jar jarfile="${jarfile}" basedir="${temp.build.dir}"
+	     excludes="${excludes}" />
+	<delete dir="${temp.build.dir}" />
+    </target>
+</project>
