@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# add all the jars anywhere in the lib/ directory to our classpath
+here=$(dirname $0)
+CLASSES=$here/bin
+CLASSES=$CLASSES:$(echo $here/lib/*.jar | tr ' ' :)
+CLASSES=$CLASSES:$here/book-nlp.jar
+
+java -XX:ParallelGCThreads=2 -Xmx3000m -ea -classpath $CLASSES $*
