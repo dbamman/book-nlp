@@ -21,9 +21,21 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 * copy stanford-corenlp-3.3.0-models.jar in that folder to the lib/ directory here
 
 
-####Run
+####Example
 
-The main executable class is novels/BookNLP.  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
+From the command line, run the following:
+
+    ./runjava novels/BookNLP -doc data/originalTexts/dickens.oliver.pg730.txt -printHTML -p data/output/dickens -tok data/tokens/dickens.oliver.tokens -f
+
+(On a 2.6 GHz MBP, this takes about 3.5 minutes)
+
+This runs the bookNLP pipeline on "Oliver Twist" in the data/originalTexts directory and writes the processed document to data/tokens/dickens.oliver.tokens, along with diagnostic info to data/output/dickens.  To run on your own texts, change the following:
+
+* data/originalTexts/dickens.oliver.pg730.txt -> the path to the input book you want to process.
+* data/tokens/dickens.oliver.tokens -> the path to the file where your want the processed text to be stored.
+* data/output/dickens -> the path to the output directory you want to write any other diagnostics to.
+
+####Flags
 
 ######Required
 
@@ -33,20 +45,17 @@ The main executable class is novels/BookNLP.  To run, execute `./runjava novel/B
 
 -p : the directory to write all diagnostic files to.  Creates the directory if it does not already exist.
 
--id : a unique book ID for this book
 
 ######Optional
 
--printHTML	: print the text as an HTML file with character aliases, coref and speaker ID annotated
+-id : a unique book ID for this book (output files include this in the filename)
+
+-printHTML	: also print the text as an HTML file with character aliases, coref and speaker ID annotated
 
 -f : force the (slower) syntactic processing of the original text file, even if the <file> in the -tok flag exists (if the -tok <file> exists, the process that would parse the original text to create it is skipped)
 
 
-####Example
-
-    ./runjava novels/BookNLP -doc data/originalTexts/dickens.oliver.pg730.txt -printHTML -p data/output/dickens -id dickens.oliver.twist -tok data/tokens/dickens.oliver.tokens -f
-
-(On a 2.6 GHz MBP, this takes about 3.5 minutes)
+####Output
 
 The main output here is data/tokens/dickens.oliver.tokens, which contains the original book, one token per line, with part of speech, syntax, NER, coreference and other annotations.  The (tab-separated) format is:
 
