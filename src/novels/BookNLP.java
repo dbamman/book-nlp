@@ -27,8 +27,8 @@ public class BookNLP {
 	private static final String maleFile = "files/stanford/male.unigrams.txt";
 	private static final String corefWeights = "files/coref.weights";
 
-	public String weights=corefWeights;
-	
+	public String weights = corefWeights;
+
 	/**
 	 * Annotate a book with characters, coreference and quotations
 	 * 
@@ -89,7 +89,7 @@ public class BookNLP {
 		options.addOption("tok", true, "processed text document");
 		options.addOption("docId", true, "text document ID to process");
 		options.addOption("p", true, "output directory");
-		options.addOption("id", true, "unique book ID");
+		options.addOption("id", true, "book ID");
 		options.addOption("d", false, "dump pronoun and quotes for annotation");
 
 		CommandLine cmd = null;
@@ -101,15 +101,17 @@ public class BookNLP {
 		}
 
 		String outputDirectory = null;
-		String prefix = null;
-		if (!cmd.hasOption("p") || !cmd.hasOption("id")) {
-			System.err
-					.println("Specify output directory with -p <directory> and unique book ID with -id <id>");
+		String prefix = "book.id";
+		
+		if (!cmd.hasOption("p")) {
+			System.err.println("Specify output directory with -p <directory>");
 			System.exit(1);
 		} else {
 			outputDirectory = cmd.getOptionValue("p");
-			prefix = cmd.getOptionValue("id");
+		}
 
+		if (cmd.hasOption("id")) {
+			prefix = cmd.getOptionValue("id");
 		}
 
 		File directory = new File(outputDirectory);
@@ -118,13 +120,12 @@ public class BookNLP {
 		String tokenFileString = null;
 		if (cmd.hasOption("tok")) {
 			tokenFileString = cmd.getOptionValue("tok");
-			File tokenDirectory=new File(tokenFileString).getParentFile();
+			File tokenDirectory = new File(tokenFileString).getParentFile();
 			tokenDirectory.mkdirs();
 		} else {
 			System.err.println("Specify token file with -tok <filename>");
 			System.exit(1);
 		}
-		
 
 		options.addOption("printHtml", false,
 				"write HTML file with coreference links and speaker ID for inspection");
@@ -138,8 +139,8 @@ public class BookNLP {
 		if (!tokenFile.exists() || cmd.hasOption("f")) {
 			String doc = cmd.getOptionValue("doc");
 			String text = Util.readText(doc);
-			text=Util.filterGutenberg(text);
-			SyntaxAnnotator syntaxAnnotator=new SyntaxAnnotator();
+			text = Util.filterGutenberg(text);
+			SyntaxAnnotator syntaxAnnotator = new SyntaxAnnotator();
 			tokens = syntaxAnnotator.process(text);
 			System.out.println("Processing text");
 		} else {
@@ -169,13 +170,12 @@ public class BookNLP {
 			File htmlOutfile = new File(directory, prefix + ".html");
 			PrintUtil.printWithLinksAndCorefAndQuotes(htmlOutfile, book);
 		}
-		
 
 		if (cmd.hasOption("d")) {
 			System.out.println("Dumping for annotation");
 			bookNLP.dumpForAnnotation(book, directory, prefix);
 		}
-		
+
 		// Print out tokens
 		PrintUtil.printTokens(book, tokenFileString);
 
