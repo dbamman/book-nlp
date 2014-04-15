@@ -25,6 +25,8 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 
 The main executable class is novels/BookNLP.  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
 
+######Required
+
 -doc <text> : original text to process
 
 -tok <file> : file path to save processed tokens to (or read them from, if it already exists)
@@ -32,6 +34,8 @@ The main executable class is novels/BookNLP.  To run, execute `./runjava novel/B
 -p : the directory to write all diagnostic files to.  Creates the directory if it does not already exist.
 
 -id : a unique book ID for this book
+
+######Optional
 
 -printHTML	: print the text as an HTML file with character aliases, coref and speaker ID annotated
 
