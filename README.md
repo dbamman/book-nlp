@@ -32,7 +32,7 @@ From the command line, run the following:
 This runs the bookNLP pipeline on "Oliver Twist" in the data/originalTexts directory and writes the processed document to data/tokens/dickens.oliver.tokens, along with diagnostic info to data/output/dickens.  To run on your own texts, change the following:
 
 * data/originalTexts/dickens.oliver.pg730.txt -> the path to the input book you want to process.
-* data/tokens/dickens.oliver.tokens -> the path to the file where your want the processed text to be stored.
+* data/tokens/dickens.oliver.tokens -> the path to the file where you want the processed text to be stored.
 * data/output/dickens -> the path to the output directory you want to write any other diagnostics to.
 
 ####Flags
