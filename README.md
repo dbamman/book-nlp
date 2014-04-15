@@ -13,7 +13,7 @@ BookNLP is a natural language processing pipeline that scales to books and other
 How To Run
 =======
 
-The main executable class is novels/BookNLP.  `runjava` is a convenience wrapper for executing java (taking care of the classpath, memory, etc.).  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
+The main executable class is novels/BookNLP.  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
 
 
 ####Preliminaries
