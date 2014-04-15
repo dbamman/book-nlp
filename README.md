@@ -8,7 +8,7 @@ BookNLP is a natural language processing pipeline that scales to books and other
 * Named entity recognition (Stanford)
 * Character name clustering (e.g., "Tom", "Tom Sawyer", "Mr. Sawyer", "Thomas Sawyer" -> TOM_SAWYER)
 * Quotation speaker identification
-* Coreference (anaphora) resolution
+* Pronominal coreference resolution
 
 How To Run
 =======
