@@ -1,10 +1,10 @@
 BookNLP
 =======
 
-Natural language processing pipeline for books and other long documents (in English), including:
+BookNLP is a natural language processing pipeline that scales to books and other long documents (in English), including:
 
-* POS tagging (Stanford)
-* Dependency Parsing (MaltParser)
+* Part-of-speech tagging (Stanford)
+* Dependency parsing (MaltParser)
 * Named entity recognition (Stanford)
 * Character name clustering (e.g., "Tom", "Tom Sawyer", "Mr. Sawyer", "Thomas Sawyer" -> TOM_SAWYER)
 * Quotation speaker identification
