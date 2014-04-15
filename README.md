@@ -17,8 +17,8 @@ How To Run
 
 Download external jars (which are sadly too big for GitHub's 100MB file size limit)
 
-* Download and unzip http://nlp.stanford.edu/downloads/stanford-corenlp-full-2013-11-12.zip
-* copy stanford-corenlp-3.3.0-models.jar in that folder to the lib/ directory here
+* Download and unzip http://nlp.stanford.edu/software/stanford-corenlp-full-2014-01-04.zip
+* copy stanford-corenlp-3.3.1-models.jar in that folder to the lib/ directory here
 
 
 ####Example
