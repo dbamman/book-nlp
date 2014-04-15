@@ -45,7 +45,7 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 
 (On a 2.6 GHz MBP, this takes about 3.5 minutes)
 
-The main output here is tokens/dickens.oliver.tokens, which contains the original book, one token per line, with part of speech, syntax, NER, coreference and other annotations.  The (tab-separated) format is:
+The main output here is data/tokens/dickens.oliver.tokens, which contains the original book, one token per line, with part of speech, syntax, NER, coreference and other annotations.  The (tab-separated) format is:
 
 1. Paragraph id
 2. Sentence id
@@ -63,7 +63,7 @@ The main output here is tokens/dickens.oliver.tokens, which contains the origina
 14. Within-quotation flag
 15. Character id (all coreferent tokens share the same character id)
 
-The output/dickens folder will now contain:
+The data/output/dickens folder will now contain:
 
 * dickens.oliver.twist.html (described above)
 * dickens.oliver.twist.book (a representation of all of the characters' features, in JSON)
