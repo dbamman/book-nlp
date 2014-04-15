@@ -13,9 +13,6 @@ BookNLP is a natural language processing pipeline that scales to books and other
 How To Run
 =======
 
-The main executable class is novels/BookNLP.  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
-
-
 ####Preliminaries
 
 Download external jars (which are sadly too big for GitHub's 100MB file size limit)
@@ -24,7 +21,9 @@ Download external jars (which are sadly too big for GitHub's 100MB file size lim
 * copy stanford-corenlp-3.3.0-models.jar in that folder to the lib/ directory here
 
 
-####Flags
+####Run
+
+The main executable class is novels/BookNLP.  To run, execute `./runjava novel/BooksNLP` with the relevant flags below. 
 
 -doc <text> : original text to process
 
