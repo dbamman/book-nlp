@@ -10,6 +10,11 @@ BookNLP is a natural language processing pipeline that scales to books and other
 * Quotation speaker identification
 * Pronominal coreference resolution
 
+This pipeline is described in the following paper; please cite if you write a research paper using this software:
+
+David Bamman, Ted Underwood and Noah Smith, "A Bayesian Mixed Effects Model of Literary Character," ACL 2014.
+
+
 How To Run
 =======
 
