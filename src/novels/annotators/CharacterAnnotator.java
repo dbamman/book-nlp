@@ -104,12 +104,14 @@ public class CharacterAnnotator {
 				// don't add it (e.g., Joe > Mr. Joe Gargery)
 				if (!nameSet.equals(name2Set) && name2Set.containsAll(nameSet)) {
 					flag = true;
+                    continue;
 				}
 				// if there are namesets that are equal (e.g. "Sakura Kinomoto"
 				// and "Kinomoto Sakura") then only add the name first in
 				// lexicographic order
 				if (nameSet.equals(name2Set) && name.compareTo(name2) > 0) {
 				    flag = true;
+                    continue;
 				}
 			}
 
