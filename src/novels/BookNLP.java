@@ -66,6 +66,8 @@ public class BookNLP {
 		CoreferenceAnnotator coref = new CoreferenceAnnotator();
 		coref.readWeights(weights);
 		coref.resolvePronouns(book);
+		
+		SyntaxAnnotator.setCharacterIds(book);	
 	}
 
 	public void dumpForAnnotation(Book book, File outputDirectory, String prefix) {
@@ -94,6 +96,7 @@ public class BookNLP {
 
 		CommandLine cmd = null;
 		try {
+
 			CommandLineParser parser = new BasicParser();
 			cmd = parser.parse(options, args);
 		} catch (Exception e) {
@@ -153,7 +156,8 @@ public class BookNLP {
 		}
 
 		Book book = new Book(tokens);
-
+		
+		
 		if (cmd.hasOption("w")) {
 			bookNLP.weights = cmd.getOptionValue("w");
 			System.out.println(String.format("Using coref weights: ",
@@ -166,10 +170,12 @@ public class BookNLP {
 		book.id = prefix;
 		bookNLP.process(book, directory, prefix);
 
+		
 		if (cmd.hasOption("printHTML")) {
 			File htmlOutfile = new File(directory, prefix + ".html");
 			PrintUtil.printWithLinksAndCorefAndQuotes(htmlOutfile, book);
 		}
+
 
 		if (cmd.hasOption("d")) {
 			System.out.println("Dumping for annotation");
