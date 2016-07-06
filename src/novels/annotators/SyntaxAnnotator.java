@@ -354,7 +354,7 @@ public class SyntaxAnnotator {
 					p++;
 				}
 			}
-			s++; // 
+			s++; 
 			
 			
 			DependencyStructure graph = service.parse(parseTokens);
