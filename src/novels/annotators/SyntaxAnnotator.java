@@ -107,6 +107,20 @@ public class SyntaxAnnotator {
 		}
 		return null;
 	}
+	
+	public static void setCharacterIds(Book book)
+	{
+		try{
+			for (Token anno : book.tokens) {
+					if (book.tokenToCharacter.containsKey(anno.tokenId)) {
+						anno.characterId=book.tokenToCharacter.get(anno.tokenId).getCharacterId();
+					}
+				}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public static String getMods(Book book, int index) {
 		Token token = book.tokens.get(index);
@@ -340,7 +354,9 @@ public class SyntaxAnnotator {
 					p++;
 				}
 			}
-			s++;
+			s++; // 
+			
+			
 			DependencyStructure graph = service.parse(parseTokens);
 			SymbolTable symboltable = graph.getSymbolTables().getSymbolTable(
 					"DEPREL");
