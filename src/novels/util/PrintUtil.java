@@ -47,9 +47,9 @@ public class PrintUtil {
 			out = new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8");
 			out.write(Token.ORDER + "\n");
 			for (Token anno : book.tokens) {
-				if (book.tokenToCharacter.containsKey(anno.tokenId)) {
-					anno.characterId=book.tokenToCharacter.get(anno.tokenId).getCharacterId();
-				}
+	//			if (book.tokenToCharacter.containsKey(anno.tokenId)) {
+	//				anno.characterId=book.tokenToCharacter.get(anno.tokenId).getCharacterId();
+	//			}
 				out.write(anno + "\n");
 			}
 			out.close();
