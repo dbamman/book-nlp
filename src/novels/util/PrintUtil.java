@@ -162,6 +162,7 @@ public class PrintUtil {
 
 	}
 
+	
 	public void printWithLinks(String infile, String outFile, Book book) {
 		OutputStreamWriter out = null;
 		try {
@@ -244,13 +245,17 @@ public class PrintUtil {
 			out = new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8");
 			for (Quotation quote : book.quotations) {
 				String guessString = "";
+				int characterId = -1;
+				
 				if (quote.attributionId != 0) {
 					Token token = book.tokens.get(quote.attributionId);
-					guessString = token.word;
+					guessString = token.word;					
+					characterId = token.characterId;
 				}
-				out.write(String.format("%s\t%s\t%s\t%s\t%s\t%s\n", book.id,
-						quote.start, quote.end, 0, quote.attributionId,
-						guessString));
+				out.write(String.format("%s\t%s\t%s\t%d\t%s\t%s\t%s\t%d\n", book.id,
+						quote.start, quote.end, quote.sentenceId, 0, quote.attributionId,
+						guessString, characterId));
+
 			}
 
 			out.close();
@@ -271,7 +276,7 @@ public class PrintUtil {
 				if (token.coref != 0) {
 					out.write(i + "\t");
 					Token head = book.tokens.get(token.coref);
-					out.write(String.format("%s\t%s", token.coref, head.word));
+					out.write(String.format("%s\t%d\t%s", token.coref, head.characterId, head.word));
 					out.write("\n");
 				} 
 
@@ -279,7 +284,7 @@ public class PrintUtil {
 //				for (Integer c : cands.get(i)) {
 //					out.write(c + " ");
 //				}
-
+//				out.write("\n");
 			}
 			out.close();
 
