@@ -170,18 +170,16 @@ public class BookNLP {
 		book.id = prefix;
 		bookNLP.process(book, directory, prefix);
 
-		
-		if (cmd.hasOption("printHTML")) {
-			File htmlOutfile = new File(directory, prefix + ".html");
-			PrintUtil.printWithLinksAndCorefAndQuotes(htmlOutfile, book);
-		}
-
 
 		if (cmd.hasOption("d")) {
 			System.out.println("Dumping for annotation");
 			bookNLP.dumpForAnnotation(book, directory, prefix);
 		}
 
+		if (cmd.hasOption("printHTML")) {
+			File htmlOutfile = new File(directory, prefix + ".html");
+			PrintUtil.printWithLinksAndCorefAndQuotes(htmlOutfile, book);
+		}
 		// Print out tokens
 		PrintUtil.printTokens(book, tokenFileString);
 
