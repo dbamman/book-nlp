@@ -48,6 +48,7 @@ public class Dictionaries {
 		generalHonorifics.add("dr");
 		generalHonorifics.add("prof.");
 		generalHonorifics.add("prof");
+		generalHonorifics.add("professor");
 
 		honorifics.addAll(maleHonorifics);
 		honorifics.addAll(femaleHonorifics);
