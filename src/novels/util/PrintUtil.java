@@ -138,9 +138,15 @@ public class PrintUtil {
 					Quotation quote = ends.get(token.tokenId);
 					String name = "unknown";
 					if (quote.attributionId != 0) {
-						Antecedent ant = book.animateEntities
-								.get(quote.attributionId);
-						name = ant.getString(book);
+						//Antecedent ant = book.animateEntities
+						//		.get(quote.attributionId);
+						//name = ant.getString(book);
+						Token tok = book.tokens.get(quote.attributionId);
+						if (tok.characterId != -1)
+							name = book.characters[tok.characterId].name;
+						else
+							name = tok.word;
+						
 					}
 					Quotation endQuote = ends.get(token.tokenId);
 
@@ -244,7 +250,6 @@ public class PrintUtil {
 	public static void printQuotes(File outFile, Book book) {
 		OutputStreamWriter out = null;
 		try {
-		
 			out = new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8");
 			///*
 			for (Quotation quote : book.quotations) {
