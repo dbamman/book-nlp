@@ -39,7 +39,10 @@ public class NP implements Antecedent {
 		return book.tokens.get(head);
 	}
 	public String getString(Book book) {
+	if (characterID == -1)
 		return headPhrase;
+	else
+		return book.characters[characterID].name;
 	}
 	public int getCharacterId() {
 		return characterID;
