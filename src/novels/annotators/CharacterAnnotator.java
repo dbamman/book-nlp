@@ -30,6 +30,9 @@ public class CharacterAnnotator {
 
 	// the minimum number of times a name must show up to denote a character
 	int minCharacterNameMentions = 2;
+		
+	//the minimum number of times a discovered character (with all its subset names) must show up to be a vaild character
+	int minCharacterOccurences = 3;
 
 	// maximum length of a character name (in characters)
 	int maxCharacterNameLength = 50;
@@ -153,6 +156,7 @@ public class CharacterAnnotator {
 			if (!dicts.honorifics.contains(parts[i])) {
 				variants.add(parts[i]);
 			}
+			
 			for (int j = i + 1; j < parts.length; j++) {
 				variants.add(parts[i] + " " + parts[j]);
 				for (int k = j + 1; k < parts.length; k++) {
@@ -316,16 +320,41 @@ public class CharacterAnnotator {
 			i++;
 
 		}
+		
+		//delete characters that occur too rarely
+		//book.characters.length = 10;
+/*
+		int tempLength = book.characters.length;
+		for (int c = 0; c < tempLength; c++){
 
+			if (book.characters[c].count < minCharacterOccurences){
+				tempLength--;	
+				System.out.println("c " + c);			
+				for (int k = c; k < tempLength; k++)
+				{
+					book.characters[k] = book.characters[k+1];
+				}
+					
+			}
+		}
+		
+		BookCharacter[] tempCharacters = new BookCharacter[tempLength];
+		for (i = 0; i < tempLength; i++)
+			tempCharacters[i] = book.characters[i];
+		
+		book.characters  = new BookCharacter[tempLength];
+
+		for (i = 0; i < tempLength; i++)
+			book.characters[i] = tempCharacters[i];
+*/		
 		// After all the tokens have been assigned, calculate and save
 		// properties of the characters (like most frequent name).
+//		for (int c = 0; c < tempLength; c++) {//
 		for (int c = 0; c < book.characters.length; c++) {
 			book.characters[c].setDominantName();
 			int charGender = dicts.getGender(book.characters[c].nameCounts);
 			book.characters[c].gender = charGender;
-			//System.out.println(String.format("%s\tCHAR: %s\t%s\t%s",
-				//	book.characters[c].count, c, book.characters[c].name,
-					//charGender));
+		//	System.out.println(String.format("%s\tCHAR: %s\t%s\t%s", book.characters[c].count, c, book.characters[c].name, charGender));
 
 		}
 	}
