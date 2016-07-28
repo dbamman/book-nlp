@@ -23,7 +23,10 @@ public class PronounAntecedent implements Antecedent {
 		return book.tokens.get(tokenID);
 	}
 	public String getString(Book book){ 
-		return book.tokens.get(tokenID).word;
+		if (characterID == -1)
+			return book.tokens.get(tokenID).word;
+		else
+			return book.characters[characterID].name;
 	}
 	public int getCharacterId() {
 		return characterID;
