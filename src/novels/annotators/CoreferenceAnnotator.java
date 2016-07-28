@@ -41,6 +41,7 @@ public class CoreferenceAnnotator {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("Finished Reading Weights");
 	}
 
 	public int getSalience(Antecedent cand, Book book) {
@@ -75,6 +76,10 @@ public class CoreferenceAnnotator {
 		if (head.quotation == pronoun.quotation) {
 			sameQuote = 1;
 		}
+		
+		int isPerson = 0;
+		if (head.ner.equals("PERSON"))
+			isPerson = 1;
 
 		String synpath = SyntaxAnnotator.getPath(pronoun.tokenId, head.tokenId,
 				book.tokens);
@@ -98,6 +103,7 @@ public class CoreferenceAnnotator {
 			}
 		}
 
+		features.put("isPerson", isPerson);
 		features.put("oppositeGender", oppositeGender);
 		features.put("linearDistance", linearDistance);
 		features.put("sameQuote", sameQuote);
@@ -143,6 +149,7 @@ public class CoreferenceAnnotator {
 	public void resolvePronouns(Book book) {
 
 		for (Token token : book.tokens) {
+			//System.out.println("tokenid " + token.tokenId);			
 			if (token.pos.startsWith("PRP")
 					&& (token.lemma.equals("she") || token.lemma.equals("he"))) {
 
@@ -171,6 +178,7 @@ public class CoreferenceAnnotator {
 
 		// set maximal heads
 		for (Token token : book.tokens) {
+			//System.out.println("tokenid " + token.tokenId);			
 			if (token.pos.startsWith("PRP")
 					&& (token.lemma.equals("she") || token.lemma.equals("he") || token.lemma
 							.equals("you"))) {
@@ -278,7 +286,8 @@ public class CoreferenceAnnotator {
 			if (lastToken.quotation != token.quotation) {
 				continue;
 			}
-			if (lastToken.pos.startsWith("PRP")) {
+			//if (lastToken.pos.startsWith("PRP")){// || lastToken.ner.equals("PERSON")) {
+			if (lastToken.pos.startsWith("PRP") || lastToken.ner.equals("PERSON")) {
 				int gender = Dictionaries.getPronounGender(lastToken);
 				PronounAntecedent pro = new PronounAntecedent(i, gender);
 				candidates.add(pro);

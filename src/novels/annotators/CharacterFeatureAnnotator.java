@@ -26,6 +26,7 @@ public class CharacterFeatureAnnotator {
 				}
 			}
 		}
+		
 		for (int i = 0; i < book.tokens.size(); i++) {
 			if (book.tokenToCharacter.containsKey(i)) {
 				Antecedent ant = book.tokenToCharacter.get(i);

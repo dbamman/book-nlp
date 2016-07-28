@@ -35,6 +35,7 @@ public class Dictionaries {
 		maleHonorifics.add("mr");
 		maleHonorifics.add("mister");
 		maleHonorifics.add("lord");
+		maleHonorifics.add("uncle");
 
 		femaleHonorifics.add("ms.");
 		femaleHonorifics.add("ms");
@@ -43,11 +44,13 @@ public class Dictionaries {
 		femaleHonorifics.add("miss");
 		femaleHonorifics.add("madam");
 		femaleHonorifics.add("lady");
+		femaleHonorifics.add("aunt");
 
 		generalHonorifics.add("dr.");
 		generalHonorifics.add("dr");
 		generalHonorifics.add("prof.");
 		generalHonorifics.add("prof");
+		generalHonorifics.add("professor");
 
 		honorifics.addAll(maleHonorifics);
 		honorifics.addAll(femaleHonorifics);

@@ -33,11 +33,13 @@ public class PhraseAnnotator {
 			Token tok = book.tokens.get(i);
 			np.phrase += tok.word + " ";
 		}
+		
 		Token word = book.tokens.get(index);
 		if (dicts.animateUnigrams.contains(word.word)) {
 			np.animate = true;
 		}
-
+		
+		
 		if (dicts.genderUnigrams.containsKey(word.word.toLowerCase())) {
 			np.gender = dicts.genderUnigrams.get(word.word.toLowerCase());
 		}
@@ -63,7 +65,15 @@ public class PhraseAnnotator {
 				}
 			}
 		}
-
+		
+	/*	if (np.animate){
+			System.out.println("\n-----ANIMATE \n Phrase - " + np.phrase);
+			System.out.println("Head Phrase - " + np.headPhrase + "\n-----");
+		}else{
+			System.out.println("\n Phrase - " + np.phrase);
+			System.out.println(" Head Phrase - " + np.headPhrase);
+		}
+	*/
 		return np;
 
 	}

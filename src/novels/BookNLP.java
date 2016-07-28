@@ -39,8 +39,6 @@ public class BookNLP {
 
 		process(book);
 
-		QuotationAnnotator quoteFinder = new QuotationAnnotator();
-		quoteFinder.findQuotations(book);
 
 		CharacterFeatureAnnotator featureAnno = new CharacterFeatureAnnotator();
 		featureAnno.annotatePaths(book);
@@ -49,23 +47,35 @@ public class BookNLP {
 	}
 
 	public void process(Book book) {
+		System.out.println("Setting Dependents");
 		SyntaxAnnotator.setDependents(book);
-
+		
+		System.out.println("Adding Dictionary");
 		Dictionaries dicts = new Dictionaries();
 		dicts.readAnimate(animacyFile, genderFile, maleFile, femaleFile);
 		dicts.processHonorifics(book.tokens);
 
+		System.out.println("Annotating Chatacters");
 		CharacterAnnotator charFinder = new CharacterAnnotator();
 
 		charFinder.findCharacters(book, dicts);
 		charFinder.resolveCharacters(book, dicts);
-
+		
+		System.out.println("Getting Phrases");
 		PhraseAnnotator phraseFinder = new PhraseAnnotator();
 		phraseFinder.getPhrases(book, dicts);
-
+		
+		System.out.println("Resolving Pronouns");
 		CoreferenceAnnotator coref = new CoreferenceAnnotator();
 		coref.readWeights(weights);
 		coref.resolvePronouns(book);
+
+		System.out.println("Setting Character IDs");
+		SyntaxAnnotator.setCharacterIds(book);	
+
+
+		QuotationAnnotator quoteFinder = new QuotationAnnotator();
+		quoteFinder.findQuotations(book, dicts);
 	}
 
 	public void dumpForAnnotation(Book book, File outputDirectory, String prefix) {
@@ -94,6 +104,7 @@ public class BookNLP {
 
 		CommandLine cmd = null;
 		try {
+
 			CommandLineParser parser = new BasicParser();
 			cmd = parser.parse(options, args);
 		} catch (Exception e) {
@@ -153,7 +164,8 @@ public class BookNLP {
 		}
 
 		Book book = new Book(tokens);
-
+		
+		
 		if (cmd.hasOption("w")) {
 			bookNLP.weights = cmd.getOptionValue("w");
 			System.out.println(String.format("Using coref weights: ",
@@ -166,16 +178,16 @@ public class BookNLP {
 		book.id = prefix;
 		bookNLP.process(book, directory, prefix);
 
-		if (cmd.hasOption("printHTML")) {
-			File htmlOutfile = new File(directory, prefix + ".html");
-			PrintUtil.printWithLinksAndCorefAndQuotes(htmlOutfile, book);
-		}
 
 		if (cmd.hasOption("d")) {
 			System.out.println("Dumping for annotation");
 			bookNLP.dumpForAnnotation(book, directory, prefix);
 		}
 
+		if (cmd.hasOption("printHTML")) {
+			File htmlOutfile = new File(directory, prefix + ".html");
+			PrintUtil.printWithLinksAndCorefAndQuotes(htmlOutfile, book);
+		}
 		// Print out tokens
 		PrintUtil.printTokens(book, tokenFileString);
 

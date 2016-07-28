@@ -23,6 +23,8 @@ import novels.entities.Antecedent;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import java.util.*;
+
 public class PrintUtil {
 
 	public static String BLACK = "\033[0m";
@@ -47,9 +49,9 @@ public class PrintUtil {
 			out = new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8");
 			out.write(Token.ORDER + "\n");
 			for (Token anno : book.tokens) {
-				if (book.tokenToCharacter.containsKey(anno.tokenId)) {
-					anno.characterId=book.tokenToCharacter.get(anno.tokenId).getCharacterId();
-				}
+		//		if (book.tokenToCharacter.containsKey(anno.tokenId)) {
+		//			anno.characterId=book.tokenToCharacter.get(anno.tokenId).getCharacterId();
+		//		}
 				out.write(anno + "\n");
 			}
 			out.close();
@@ -136,9 +138,15 @@ public class PrintUtil {
 					Quotation quote = ends.get(token.tokenId);
 					String name = "unknown";
 					if (quote.attributionId != 0) {
-						Antecedent ant = book.animateEntities
-								.get(quote.attributionId);
-						name = ant.getString(book);
+						//Antecedent ant = book.animateEntities
+						//		.get(quote.attributionId);
+						//name = ant.getString(book);
+						Token tok = book.tokens.get(quote.attributionId);
+						if (tok.characterId != -1)
+							name = book.characters[tok.characterId].name;
+						else
+							name = tok.word;
+						
 					}
 					Quotation endQuote = ends.get(token.tokenId);
 
@@ -162,6 +170,7 @@ public class PrintUtil {
 
 	}
 
+	
 	public void printWithLinks(String infile, String outFile, Book book) {
 		OutputStreamWriter out = null;
 		try {
@@ -242,6 +251,27 @@ public class PrintUtil {
 		OutputStreamWriter out = null;
 		try {
 			out = new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8");
+			///*
+			for (Quotation quote : book.quotations) {
+				String guessString = "";
+				int characterId = -1;
+				
+					
+				if (quote.attributionId != 0) {
+					Token token = book.tokens.get(quote.attributionId);						
+					guessString = token.word;										
+					characterId = token.characterId;
+				}
+
+				
+				
+				out.write(String.format("%s\t%s\t%s\t%d\t%s\t%s\t%s\t%d\n", book.id,
+						quote.start, quote.end, quote.sentenceId, 0, quote.attributionId,
+						guessString, characterId));
+
+			}
+			//*/
+			/*
 			for (Quotation quote : book.quotations) {
 				String guessString = "";
 				if (quote.attributionId != 0) {
@@ -252,7 +282,7 @@ public class PrintUtil {
 						quote.start, quote.end, 0, quote.attributionId,
 						guessString));
 			}
-
+			*/
 			out.close();
 
 		} catch (Exception e) {
@@ -271,7 +301,7 @@ public class PrintUtil {
 				if (token.coref != 0) {
 					out.write(i + "\t");
 					Token head = book.tokens.get(token.coref);
-					out.write(String.format("%s\t%s", token.coref, head.word));
+					out.write(String.format("%s\t%d\t%s", token.coref, head.characterId, head.word));
 					out.write("\n");
 				} 
 
@@ -279,7 +309,7 @@ public class PrintUtil {
 //				for (Integer c : cands.get(i)) {
 //					out.write(c + " ");
 //				}
-
+//				out.write("\n");
 			}
 			out.close();
 

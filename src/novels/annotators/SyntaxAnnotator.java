@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.Iterator;
 
 import novels.Token;
 import novels.Book;
@@ -34,6 +35,11 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.stanford.nlp.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.trees.GrammaticalRelation;
 
 public class SyntaxAnnotator {
 
@@ -106,6 +112,20 @@ public class SyntaxAnnotator {
 			}
 		}
 		return null;
+	}
+	
+	public static void setCharacterIds(Book book)
+	{
+		try{
+			for (Token anno : book.tokens) {
+					if (book.tokenToCharacter.containsKey(anno.tokenId)) {
+						anno.characterId=book.tokenToCharacter.get(anno.tokenId).getCharacterId();
+					}
+				}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static String getMods(Book book, int index) {
@@ -203,12 +223,21 @@ public class SyntaxAnnotator {
 
 	public static HashSet<Integer> getRecursiveDeps(int index, Book book) {
 		HashSet<Integer> deps = new HashSet<Integer>();
+		HashSet<Integer> seen = new HashSet<Integer>();
 		if (book.dependents.containsKey(index)) {
 			TreeSet<Integer> nextDeps = book.dependents.get(index);
 			for (int i : nextDeps) {
-				deps.addAll(getRecursiveDeps(i, book));
+				//if (i != index){
+					//seen.add(i);
+					deps.addAll(getRecursiveDeps(i, book));
+				//}
+				//for (Integer d : getRecursiveDeps(i, book)){
+				//	if (!deps.contains(d))
+				//		deps.add(d);
+				//}			
 			}
 		}
+
 		deps.add(index);
 		return deps;
 	}
@@ -240,10 +269,14 @@ public class SyntaxAnnotator {
 		try {
 
 			if (!stateLess) {
+				System.out.println("Setting Properties...");
 				Properties props = new Properties();
-				props.put("annotators", "tokenize, ssplit, pos, lemma, ner");
-
+				props.setProperty("annotators", "tokenize, ssplit, pos, lemma, ner, depparse");
+				//props.setProperty("ssplit.boundaryMultiTokenRegex", "/\'\'/, /``/");
+				//props.setProperty("ssplit.boundaryMultiTokenRegex", "/``//\'\'/");
+				props.setProperty("ssplit.boundaryMultiTokenRegex", "/\'\'|``/");
 				pipeline = new StanfordCoreNLP(props);
+				System.out.println("Properties set.");
 
 				service = new MaltParserService(id);
 
@@ -277,9 +310,12 @@ public class SyntaxAnnotator {
 		int p = 0;
 
 		boolean quotation = false;
-
+		
+		System.out.println("Tokenizing Sentences...");
 		List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+		
 		int totalSentences = sentences.size() - 1;
+		System.out.println("Sentences tokenized.");
 
 		for (CoreMap sentence : sentences) {
 			if (s % 100 == 0 || s == totalSentences) {
@@ -288,13 +324,14 @@ public class SyntaxAnnotator {
 						"\t%.3f (%s out of %s) processed\r", ratio, s,
 						totalSentences));
 			}
-
+			int oldId, newId;
 			int id = 1;
 			String[] parseTokens = new String[sentence.get(
 					TokensAnnotation.class).size()];
 
 			ArrayList<Token> annos = new ArrayList<Token>();
-
+			
+			oldId = id;
 			for (CoreLabel token : sentence.get(TokensAnnotation.class)) {
 
 				String word = token.get(TextAnnotation.class);
@@ -340,53 +377,85 @@ public class SyntaxAnnotator {
 					p++;
 				}
 			}
-			s++;
-			DependencyStructure graph = service.parse(parseTokens);
-			SymbolTable symboltable = graph.getSymbolTables().getSymbolTable(
-					"DEPREL");
-			SortedSet<Integer> depInts = graph.getDependencyIndices();
-			for (int dint : depInts) {
-				if (dint > 0) {
-					// annos offset = 0, maltparser offset = 1
-					Token anno = annos.get(dint - 1);
-					DependencyNode node = graph.getDependencyNode(dint);
-					DependencyNode head = node.getHead();
+			s++; // 
+			newId = id;		
+///*
+			SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			
+			//String dep_type = "CollapsedDependenciesAnnotation";
+			//System.out.println(dep_type+" ===>>");
+			//if (s == 2321){
+			//if (s >= 2622 && s < 2626){			
+			//System.out.println("\n\n\nSentence " + s + ": ---------------\n"+sentence.toString() +"\n");
+			//System.out.println("DEPENDENCIES: "+dependencies.toList());
+			//System.out.println("DEPENDENCIES SIZE: "+dependencies.size() + " " + newId + " " + oldId + " " + (newId - oldId));
+			//}			
+			List<SemanticGraphEdge> edge_set1 = dependencies.edgeListSorted();
+			int j=0;
+			Iterator it = dependencies.getRoots().iterator();
+			IndexedWord root = (IndexedWord) it.next();			
+			int index = dependencies.size() + 1;
+			
+			Token rAnno = annos.get(root.index() -1);
+			rAnno.head = -1;
+			rAnno.deprel = "null";
+			//if (s >= 2622 && s < 2626)
+			//System.out.println((j-1) + ": (" + root.index() + " -1) " +  + rAnno.tokenId + " " + rAnno.head + " " + rAnno.deprel + " " + rAnno.word + " ");
+			//annos.set(root.index()-1, rAnno);
+			
+			for(SemanticGraphEdge edge : edge_set1){
+				j++;
+				//System.out.println("------EDGE DEPENDENCY: "+j);
+			    
+				IndexedWord dep = edge.getDependent();
+				String dependent = dep.word();
+				int dependent_index = dep.index();
+				Token anno = annos.get(dependent_index - 1);
 
-					int headIndex = 0;
-					String label = "null";
-					if (head != null) {
-						Edge edge = node.getHeadEdge();
-						headIndex = head.getIndex();
-						label = edge.getLabelSymbol(symboltable);
-
-					}
-
-					int globalHead = -1;
-
-					if (headIndex > 0) {
-						int offset = headIndex - dint;
-						globalHead = offset + anno.tokenId;
-					}
-
-					anno.head = globalHead;
-					anno.deprel = label;
-					annos.set(dint - 1, anno);
+				int diff = dependent_index - index;
+				if (diff == 2){
+					diff--;
 				}
+				
+				IndexedWord gov = edge.getGovernor();
+				String governor = gov.word();
+				int governor_index = gov.index();
+				GrammaticalRelation relation = edge.getRelation();
+				
+				if (diff == 0 || gov.index() - dep.index() == 0){	
+		//			System.out.println("\n\t\tHere\n");
+					continue;					
+				}				
+				
+				//System.out.println("No:"+j+" "+relation.toString()
+				//	+" "+ (dep.index()) +" : "+dep.word()+"->: "+ (gov.index()) +" " + gov.word() + " " + diff);
+				
+				index = dep.index();
+				anno.head =   anno.tokenId + (gov.index() - dep.index()); 
+				anno.deprel = relation.toString();
+				annos.set(dependent_index -1, anno);
+																																																																																																																																										
+				//System.out.println(j + ": (" + dep.index() + " " + gov.index() + ") " + anno.tokenId + " " + anno.head + " " + anno.deprel +" " +  anno.word + " " + diff);
 			}
+//*/			
+			//System.out.println("-----------------");
+
+					
 
 		}
 		p++;
 
 		System.err.println();
 
-		service.terminateParserModel();
+		//service.terminateParserModel();
 
 		return allWords;
 
 	}
 
 	public static String getPath(int s, int t, ArrayList<Token> allWords) {
-
+		
+		//System.out.println("get path " + s + " " + t);
 		boolean collapseConj = true;
 
 		Token source = allWords.get(s);

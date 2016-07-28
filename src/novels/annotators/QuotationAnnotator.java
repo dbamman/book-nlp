@@ -3,14 +3,20 @@ package novels.annotators;
 import java.util.Map;
 import java.util.TreeMap;
 
+import java.lang.Character;
+
 import novels.Book;
 import novels.Quotation;
 import novels.Token;
 import novels.entities.PronounAntecedent;
+import novels.annotators.PhraseAnnotator;
+import novels.entities.NP;
+import novels.Dictionaries;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import java.util.*;
 /**
  * Attribute quotes to speakers
  * 
@@ -42,7 +48,7 @@ public class QuotationAnnotator {
 			
 		}
 	}
-	public void findQuotations(Book book) {
+	public void findQuotations(Book book, Dictionaries dicts) {
 
 		setQuotes(book);
 		// Add "I" as possible speaker
@@ -71,12 +77,15 @@ public class QuotationAnnotator {
 				if (start > -1) {
 					Quotation quote = new Quotation(start, end,
 							token.sentenceID);
+					quote.p = token.p;
 					quotations.put(start, quote);
 				}
 				start = -1;
 
 			}
 		}
+
+
 		// // combine quotations than span multiple sentences
 		// HashSet<Integer> rem = Sets.newHashSet();
 		// for (Quotation quote : quotations.values()) {
@@ -99,26 +108,30 @@ public class QuotationAnnotator {
 
 		// find speakers within the span of the sentence itself, e.g.: `` ...
 		// ,'' said Darcy , `` ... ''
-		// for (Quotation quote : quotations.values()) {
-		//
-		// for (int i = quote.start; i <= quote.end; i++) {
-		// Token token = book.tokens.get(i);
-		// if (book.animateEntities.containsKey(i)
-		// && token.quotation == false
-		// && !token.pos.equals("PRP$")) {
-		// quote.attributionId = i;
-		// break;
-		// }
-		//
-		// }
-		// }
+		
+		//for (Quotation quote : quotations.values()) {
+		
+		//	for (int i = quote.start; i <= quote.end; i++) {
+		//		Token token = book.tokens.get(i);
+		//		if (book.animateEntities.containsKey(i) && token.quotation == false && !token.pos.equals("PRP$")) {
+		//			quote.attributionId = i;
+		//			break;
+		//		}
+		//		
+		//	}
+		//}
 
 		// span left until the previous sentence
-		for (Quotation quote : quotations.values()) {
 
+		for (Quotation quote : quotations.values()) {
+		
+		
 			if (quote.attributionId != 0) {
+			
 				continue;
 			}
+			
+						
 
 			int quoteSentence = book.tokens.get(quote.start).sentenceID;
 			int i = quote.start;
@@ -127,10 +140,13 @@ public class QuotationAnnotator {
 
 				Token token = book.tokens.get(i);
 				currentSentence = token.sentenceID;
+				if (quoteSentence != currentSentence)
+					break;
 				if (book.animateEntities.containsKey(i)
 						&& token.quotation == false
 						&& !token.pos.equals("PRP$")) {
 					quote.attributionId = i;
+					//System.out.println("1 " + quote.sentenceId + " " + quote.attributionId);
 					break;
 				}
 				i--;
@@ -139,22 +155,30 @@ public class QuotationAnnotator {
 
 		// span right until the next sentence
 		for (Quotation quote : quotations.values()) {
+		
 
-			if (quote.attributionId != 0) {
+			if (quote.attributionId != 0) {		
+
 				continue;
 			}
 
+			//int p = quote.p
 			int quoteSentence = book.tokens.get(quote.end).sentenceID;
 			int i = quote.end;
-			int currentSentence = quoteSentence;
+			int currentSentence = quoteSentence;			
 			while (quoteSentence == currentSentence && i < book.tokens.size()) {
+			//while (currentSentence - quoteSentence < 2  && i < book.tokens.size()) {
 
 				Token token = book.tokens.get(i);
 				currentSentence = token.sentenceID;
+				//if (!(currentSentence - quoteSentence < 2))
+				if (quoteSentence != currentSentence)
+					break;
 				if (book.animateEntities.containsKey(i)
 						&& token.quotation == false
 						&& !token.pos.equals("PRP$")) {
 					quote.attributionId = i;
+					//System.out.println("2 " + quote.sentenceId + " " + quote.attributionId);
 					break;
 				}
 				i++;
@@ -165,8 +189,12 @@ public class QuotationAnnotator {
 		for (Quotation quote : quotations.values()) {
 
 			if (quote.attributionId != 0) {
+			
+
 				continue;
 			}
+
+			int p = quote.p;
 
 			Map.Entry<Integer, Quotation> map = quotations
 					.floorEntry(quote.start - 1);
@@ -177,13 +205,16 @@ public class QuotationAnnotator {
 					if (token.word.matches("[\\.!;\\?]")) {
 						break;
 					}
+					if (token.p != p)
+						break;
 					if (book.animateEntities.containsKey(i)
 							&& token.quotation == false
 							&& !token.pos.equals("PRP$")) {
 						quote.attributionId = i;
+						//System.out.println("3 " + quote.sentenceId + " " + quote.attributionId);
 						break;
-					}
-
+					}					
+			
 				}
 			}
 		}
@@ -191,10 +222,13 @@ public class QuotationAnnotator {
 		// span right until the next quote or a hard punctuation
 		for (Quotation quote : quotations.values()) {
 
-			if (quote.attributionId != 0) {
+
+			if (quote.attributionId != 0) {			
+
 				continue;
 			}
 
+			int p = quote.p;
 			Map.Entry<Integer, Quotation> map = quotations
 					.ceilingEntry(quote.start + 1);
 			if (map != null) {
@@ -204,10 +238,13 @@ public class QuotationAnnotator {
 					if (token.word.matches("[\\.!;:\\?]")) {
 						break;
 					}
+					if (token.p != p)
+						break;
 					if (book.animateEntities.containsKey(i)
 							&& token.quotation == false
 							&& !token.pos.equals("PRP$")) {
 						quote.attributionId = i;
+						//System.out.println("4 " + quote.sentenceId + " " + quote.attributionId);
 						break;
 					}
 
@@ -215,6 +252,116 @@ public class QuotationAnnotator {
 			}
 		}
 
+		//scanning into previous sentence 
+	/*	
+		for (Quotation quote : quotations.values()) {
+
+			if (quote.attributionId != 0) {
+			
+
+				continue;
+			}
+
+			PhraseAnnotator ph = new PhraseAnnotator();
+			int quoteSentence = book.tokens.get(quote.end).sentenceID;
+			int i = quote.start;
+			Token nextWord = book.tokens.get(quote.end + 1);
+				
+			if (Character.isLowerCase(nextWord.word.charAt(0)))
+			{
+				System.out.println((quote.end + 1) + " " + nextWord.word + " " + nextWord.word.charAt(0));
+				continue;
+			}			
+			int currentSentence = quoteSentence;
+			
+			Map.Entry<Integer, Quotation> map = quotations.floorEntry(quote.start - 1);
+			if (map != null) {
+				System.out.println("MAP NOTT NULL");
+				Quotation previous = map.getValue();
+				int prevId = previous.attributionId;
+
+				while ((quoteSentence - currentSentence) <= 1 && i >= 0) {
+					
+					
+					Token token = book.tokens.get(i);
+				
+					currentSentence = token.sentenceID;
+
+					if ((quoteSentence - currentSentence) > 1)
+						break;		
+					
+					if ((i - prevId) < 2 && (i-prevId) >= 0 || (prevId - i) < 2 && (prevId - i) >= 0){
+						System.out.println("BREKING " + i + " " + prevId);
+						break;
+					}//if (!((i - prevId) < 2|| (prevId - i) < 2)){						
+						if ((token.pos.equals("PRP") || token.pos.startsWith("NN")) && token.deprel.equals("nsubj") && token.quotation == false && token.ner.equals("PERSON")){
+							
+						
+							quote.attributionId = i;
+					
+							//PhraseAnnotator ph = new PhraseAnnotator();
+							//NP phrase = ph.getPhrase(token.tokenId, book, dicts);
+							//book.animateEntities.put(token.tokenId, phrase);
+							System.out.println("5a " + quote.sentenceId + " " + quote.attributionId);
+							break;
+						}
+						else if ((token.pos.equals("PRP") || token.pos.startsWith("NN")) && token.deprel.equals("nsubj") && token.quotation == false){
+							//if ((i - prevId) < 2|| (prevId - i) < 2)
+							//	continue;						
+							//System.out.println(token.pos + " " + token.deprel + " " + token.quotation + " " + token.ner + " " + i);
+							quote.attributionId = i;
+					
+							//NP phrase = ph.getPhrase(token.tokenId, book, dicts);
+							//book.animateEntities.put(token.tokenId, phrase);
+							System.out.println("5b " + quote.sentenceId + " " + quote.attributionId + " i " + i + " prevvId" + prevId);
+							break;
+						}
+					//}				
+				i--;
+				}
+			}
+			else
+				System.out.println("MAP NULL");
+		}
+	//*/
+
+/*
+					if (token.pos.startsWith("NN") && token.deprel == "nsubj" && token.quotation == false && token.ner == "PERSON"){
+						quote.attributionId = i;
+						break;
+					}
+					if (token.pos.startsWith("NN") && token.deprel == "nsubj" && token.quotation == false){
+						quote.attributionId = i;
+						break;
+					}
+					if (token.deprel == "nsubj" && token.quotation == false){
+						quote.attributionId = i;
+						break;
+					}
+			*/		
+
+
+		for (Quotation quote : quotations.values()){
+			
+			if (quote.attributionId != 0){
+				continue;
+			}
+
+			
+		}
+		Map<Integer, Integer> attribId = new HashMap<Integer, Integer>();
+
+
+		for (Quotation quote : quotations.values()) {
+			
+			if (attribId.get(quote.p) == null){
+				if (quote.attributionId != 0)
+					attribId.put(quote.p, quote.attributionId);
+			}else	
+				quote.attributionId = attribId.get(quote.p);
+
+		}
+	
 		book.quotations = Lists.newArrayList();
 		for (Quotation quote : quotations.values()) {
 			book.quotations.add(quote);
