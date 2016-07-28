@@ -39,8 +39,6 @@ public class BookNLP {
 
 		process(book);
 
-		QuotationAnnotator quoteFinder = new QuotationAnnotator();
-		quoteFinder.findQuotations(book);
 
 		CharacterFeatureAnnotator featureAnno = new CharacterFeatureAnnotator();
 		featureAnno.annotatePaths(book);
@@ -49,25 +47,35 @@ public class BookNLP {
 	}
 
 	public void process(Book book) {
+		System.out.println("Setting Dependents");
 		SyntaxAnnotator.setDependents(book);
-
+		
+		System.out.println("Adding Dictionary");
 		Dictionaries dicts = new Dictionaries();
 		dicts.readAnimate(animacyFile, genderFile, maleFile, femaleFile);
 		dicts.processHonorifics(book.tokens);
 
+		System.out.println("Annotating Chatacters");
 		CharacterAnnotator charFinder = new CharacterAnnotator();
 
 		charFinder.findCharacters(book, dicts);
 		charFinder.resolveCharacters(book, dicts);
-
+		
+		System.out.println("Getting Phrases");
 		PhraseAnnotator phraseFinder = new PhraseAnnotator();
 		phraseFinder.getPhrases(book, dicts);
-
+		
+		System.out.println("Resolving Pronouns");
 		CoreferenceAnnotator coref = new CoreferenceAnnotator();
 		coref.readWeights(weights);
 		coref.resolvePronouns(book);
-		
+
+		System.out.println("Setting Character IDs");
 		SyntaxAnnotator.setCharacterIds(book);	
+
+
+		QuotationAnnotator quoteFinder = new QuotationAnnotator();
+		quoteFinder.findQuotations(book, dicts);
 	}
 
 	public void dumpForAnnotation(Book book, File outputDirectory, String prefix) {
