@@ -66,6 +66,8 @@ public class BookNLP {
 		CoreferenceAnnotator coref = new CoreferenceAnnotator();
 		coref.readWeights(weights);
 		coref.resolvePronouns(book);
+		charFinder.resolveRemainingGender(book);
+
 	}
 
 	public void dumpForAnnotation(Book book, File outputDirectory, String prefix) {
