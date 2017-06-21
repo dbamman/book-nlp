@@ -5,11 +5,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeMap;
 
 import novels.Book;
 import novels.BookCharacter;
 import novels.Dictionaries;
 import novels.Token;
+import novels.entities.Antecedent;
 import novels.entities.CharacterToken;
 
 import com.google.common.collect.Lists;
@@ -248,6 +250,41 @@ public class CharacterAnnotator {
 		}
 	}
 
+	public void resolveRemainingGender(Book book) {
+		int[] maleCounts=new int[book.characters.length];
+		int[] femaleCounts=new int[book.characters.length];
+		
+		TreeMap<Integer, Antecedent> tokenToCharacter=book.tokenToCharacter;
+		for (int i : tokenToCharacter.keySet()) {
+			Antecedent ant=tokenToCharacter.get(i);
+			int charid=ant.getCharacterId();
+			int gender=ant.getGender(book);
+			if (gender == Dictionaries.MALE) {
+				maleCounts[charid]++;
+			} else if (gender == Dictionaries.FEMALE) {
+				femaleCounts[charid]++;
+			}
+		}
+		
+		int minCount=3;
+		
+		for (int cid=0; cid<book.characters.length; cid++) {
+			if (book.characters[cid].gender == 0) {
+				double total=maleCounts[cid] + femaleCounts[cid];
+				if (total >= minCount) {
+					double fraction=maleCounts[cid] /total;
+					if (fraction >= 0.6) {
+						book.characters[cid].gender=Dictionaries.MALE;
+					}
+					if (fraction <= 0.4) {
+						book.characters[cid].gender=Dictionaries.FEMALE;
+					}
+				}
+			}
+		}
+		
+	}
+	
 
 	/*
 	 * Resolve ambiguous tokens (e.g., Tom) to the most recent seen character.
