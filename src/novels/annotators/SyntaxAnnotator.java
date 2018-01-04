@@ -252,11 +252,11 @@ public class SyntaxAnnotator {
 						"-c %s -m parse -w %s -lfi parser.log", MALT, MALT_DIR));
 			}
 		} catch (MaltChainedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	
 	public ArrayList<Token> process(String doc)
 			throws Exception {
 
@@ -281,7 +281,12 @@ public class SyntaxAnnotator {
 		List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 		int totalSentences = sentences.size() - 1;
 
-		for (CoreMap sentence : sentences) {
+		ArrayList<ArrayList<Token>> sentenceannos = new ArrayList<ArrayList<Token>>();
+		
+		
+		for (int cm_indx=0; cm_indx < sentences.size(); cm_indx++) {
+			CoreMap sentence=sentences.get(cm_indx);
+		
 			if (s % 100 == 0 || s == totalSentences) {
 				double ratio = ((double) s) / totalSentences;
 				System.err.print(String.format(
@@ -289,9 +294,6 @@ public class SyntaxAnnotator {
 						totalSentences));
 			}
 
-			int id = 1;
-			String[] parseTokens = new String[sentence.get(
-					TokensAnnotation.class).size()];
 
 			ArrayList<Token> annos = new ArrayList<Token>();
 
@@ -324,10 +326,6 @@ public class SyntaxAnnotator {
 				anno.setWhitespaceAfter(whitespaceAfter);
 				anno.p = p;
 				annos.add(anno);
-				String parseToken = String.format("%d\t%s\t%s\t%s\t%s\t%s", id,
-						word, lemma, pos, pos, "_");
-				parseTokens[id - 1] = parseToken;
-				id++;
 				allWords.add(anno);
 				t++;
 				whitespaceAfter = anno.whitespaceAfter;
@@ -340,6 +338,69 @@ public class SyntaxAnnotator {
 					p++;
 				}
 			}
+			
+			sentenceannos.add(annos);
+		}
+
+		// fix sentence mistakes (like: "Yes!" he said).
+		ArrayList<ArrayList<Token>> new_sentences = new ArrayList<ArrayList<Token>>();
+		
+		boolean lastFlag=false;
+		
+		for (int s_idx=0; s_idx<sentenceannos.size(); s_idx++) {
+			
+			boolean lowercaseFlag = false;
+
+			ArrayList<Token> annos  = sentenceannos.get(s_idx);
+			if (annos.size() > 0 && annos.get(0).word.toLowerCase().equals(annos.get(0).word) && annos.get(0).word.matches(".*[a-z].*")) {
+				lowercaseFlag=true;
+			}
+			
+			if (lastFlag == true && lowercaseFlag == true) {
+				
+				ArrayList<Token> this_annos=new_sentences.get(new_sentences.size()-1);
+
+				for (int t_idx = 0; t_idx < annos.size(); t_idx++) {
+					Token anno=annos.get(t_idx);
+					this_annos.add(anno);
+				}			
+				new_sentences.set(new_sentences.size()-1, this_annos);
+			
+			} else {
+				ArrayList<Token> newannos = new ArrayList<Token>();
+				for (int t_idx = 0; t_idx < annos.size(); t_idx++) {
+					Token anno=annos.get(t_idx);
+					newannos.add(anno);
+				}	
+				new_sentences.add(newannos);
+				
+			}
+
+			lastFlag=false;
+			if (annos.size() > 1) {
+				Token ultimate=annos.get(annos.size()-1);
+				Token penultimate=annos.get(annos.size()-2);
+				if (ultimate.word.equals("''") && (penultimate.word.equals("?") || penultimate.word.equals("!"))) {
+					lastFlag=true;
+				} 	
+			}
+
+		}
+		
+		
+		for (int s_idx=0; s_idx<new_sentences.size(); s_idx++) {
+			ArrayList<Token> annos  = new_sentences.get(s_idx);
+		
+			int id = 1;
+			String[] parseTokens = new String[annos.size()];
+			for (Token anno : annos) {
+				String parseToken = String.format("%d\t%s\t%s\t%s\t%s\t%s", id,
+						anno.word, anno.lemma, anno.pos, anno.pos, "_");
+				parseTokens[id - 1] = parseToken;
+				id++;
+				anno.sentenceID = s;
+			}
+			
 			s++;
 			DependencyStructure graph = service.parse(parseTokens);
 			SymbolTable symboltable = graph.getSymbolTables().getSymbolTable(
