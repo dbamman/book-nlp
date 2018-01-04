@@ -18,15 +18,15 @@ David Bamman, Ted Underwood and Noah Smith, "A Bayesian Mixed Effects Model of L
 How To Run
 =======
 
-####Preliminaries
+#### Preliminaries
 
 Download external jars (which are sadly too big for GitHub's 100MB file size limit)
 
-* Download and unzip http://nlp.stanford.edu/software/stanford-corenlp-full-2014-01-04.zip
-* copy stanford-corenlp-full-2014-01-04/stanford-corenlp-3.3.1-models.jar to the lib/ folder in the current working directory
+* Download and unzip http://nlp.stanford.edu/software/stanford-corenlp-full-2017-06-09.zip
+* copy stanford-corenlp-full-2017-06-09/stanford-corenlp-3.8.0-models.jar to the lib/ folder in the current working directory
 
 
-####Example
+#### Example
 
 From the command line, run the following:
 
@@ -40,9 +40,9 @@ This runs the bookNLP pipeline on "Oliver Twist" in the data/originalTexts direc
 * data/tokens/dickens.oliver.tokens -> the path to the file where you want the processed text to be stored.
 * data/output/dickens -> the path to the output directory you want to write any other diagnostics to.
 
-####Flags
+#### Flags
 
-######Required
+###### Required
 
 -doc <text> : original text to process
 
@@ -51,7 +51,7 @@ This runs the bookNLP pipeline on "Oliver Twist" in the data/originalTexts direc
 -p : the directory to write all diagnostic files to.  Creates the directory if it does not already exist.
 
 
-######Optional
+###### Optional
 
 -id : a unique book ID for this book (output files include this in the filename)
 
@@ -60,7 +60,7 @@ This runs the bookNLP pipeline on "Oliver Twist" in the data/originalTexts direc
 -f : force the (slower) syntactic processing of the original text file, even if the <file> in the -tok flag exists (if the -tok <file> exists, the process that would parse the original text to create it is skipped)
 
 
-####Output
+#### Output
 
 The main output here is data/tokens/dickens.oliver.tokens, which contains the original book, one token per line, with part of speech, syntax, NER, coreference and other annotations.  The (tab-separated) format is:
 
@@ -99,7 +99,7 @@ Training coreference
 
 Coreference only needs to be trained when there's new training data (or new feature ideas: current features are based on syntactic tree distance, linear distance, POS identity, gender matching, quotation scope and salience).
 
-####Data
+#### Data
 
 Coreference annotated data is located in the coref/ directory. 
 
@@ -111,7 +111,7 @@ annotatedData.txt contains coreference annotations, in the (tab-separated) forma
 
 bookIDs are mapped to their respective token files in docPaths.txt.  All of these token files are located in finalTokenData/.  These tokens files are all read-only -- since the annotations are keyed to specific token IDs in those files, we want to make sure they stay permanent.
 
-####Training a model
+#### Training a model
 
 Given the coref/ folder above, train new coreference weights with:
 
@@ -128,5 +128,6 @@ Two parameters control the amount of regularization in the model (higher regular
 -l2 specifies the L2 regularization parameter (higher = weights shrink faster). Default = .1
 
 To use the newly trained weights in the pipeline above, copy them to files/coref.weights or specify them on the novels.BookNLP command line with the -w flag.
+
 
 
