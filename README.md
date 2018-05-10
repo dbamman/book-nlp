@@ -79,6 +79,7 @@ The main output here is data/tokens/dickens.oliver.tokens, which contains the or
 13. Stanford basic dependency label
 14. Within-quotation flag
 15. Character id (all coreferent tokens share the same character id)
+16. Supersense tag (https://wordnet.princeton.edu/documentation/lexnames5wn)
 
 The data/output/dickens folder will now contain:
 
