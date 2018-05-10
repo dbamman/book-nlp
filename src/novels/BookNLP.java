@@ -10,6 +10,7 @@ import novels.annotators.CharacterFeatureAnnotator;
 import novels.annotators.CoreferenceAnnotator;
 import novels.annotators.PhraseAnnotator;
 import novels.annotators.QuotationAnnotator;
+import novels.annotators.SupersenseAnnotator;
 import novels.annotators.SyntaxAnnotator;
 import novels.util.PrintUtil;
 import novels.util.Util;
@@ -144,7 +145,12 @@ public class BookNLP {
 			text = Util.filterGutenberg(text);
 			SyntaxAnnotator syntaxAnnotator = new SyntaxAnnotator();
 			tokens = syntaxAnnotator.process(text);
-			System.out.println("Processing text");
+			
+			System.out.println("Processing supersenses");
+			
+			SupersenseAnnotator supersenseAnnotator=new SupersenseAnnotator();
+			supersenseAnnotator.process(tokens);
+			
 		} else {
 			if (tokenFile.exists()) {
 				System.out.println(String.format("%s exists...",
