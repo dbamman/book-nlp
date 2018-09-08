@@ -78,7 +78,7 @@ The main output here is data/tokens/dickens.oliver.tokens, which contains the or
 11. Penn Treebank POS tag
 12. NER tag (PERSON, NUMBER, DATE, DURATION, MISC, TIME, LOCATION, ORDINAL, MONEY, ORGANIZATION, SET, O)
 13. Stanford basic dependency label
-14. Within-quotation flag
+14. Quotation label (begin quote, inside quote, outside quote)
 15. Character id (all coreferent tokens share the same character id)
 16. Supersense tag (https://wordnet.princeton.edu/documentation/lexnames5wn)
 
