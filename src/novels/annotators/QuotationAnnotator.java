@@ -120,12 +120,13 @@ public class QuotationAnnotator {
 		}
 
 		for (Token token : book.tokens) {
-			token.quotation = false;
+			token.quotation = "O";
 		}
 		for (int qstart : quotations.keySet()) {
 			Quotation quotation = quotations.get(qstart);
-			for (int s = quotation.start; s <= quotation.end; s++) {
-				book.tokens.get(s).quotation = true;
+			book.tokens.get(quotation.start).quotation = "B-QUOTE";
+			for (int s = quotation.start+1; s <= quotation.end; s++) {
+				book.tokens.get(s).quotation = "I-QUOTE";
 			}
 		}
 
@@ -180,7 +181,7 @@ public class QuotationAnnotator {
 				Token token = book.tokens.get(i);
 				currentSentence = token.sentenceID;
 				if (book.animateEntities.containsKey(i)
-						&& token.quotation == false
+						&& token.quotation.equals("O")
 						&& !token.pos.equals("PRP$")) {
 					quote.attributionId = i;
 					break;
@@ -204,7 +205,7 @@ public class QuotationAnnotator {
 				Token token = book.tokens.get(i);
 				currentSentence = token.sentenceID;
 				if (book.animateEntities.containsKey(i)
-						&& token.quotation == false
+						&& token.quotation.equals("O")
 						&& !token.pos.equals("PRP$")) {
 					quote.attributionId = i;
 					break;
@@ -230,7 +231,7 @@ public class QuotationAnnotator {
 						break;
 					}
 					if (book.animateEntities.containsKey(i)
-							&& token.quotation == false
+							&& token.quotation.equals("O")
 							&& !token.pos.equals("PRP$")) {
 						quote.attributionId = i;
 						break;
@@ -258,7 +259,7 @@ public class QuotationAnnotator {
 						break;
 					}
 					if (book.animateEntities.containsKey(i)
-							&& token.quotation == false
+							&& token.quotation.equals("O")
 							&& !token.pos.equals("PRP$")) {
 						quote.attributionId = i;
 						break;
