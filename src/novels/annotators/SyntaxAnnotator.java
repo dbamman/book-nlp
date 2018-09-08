@@ -24,6 +24,8 @@ import org.maltparser.core.syntaxgraph.DependencyStructure;
 import org.maltparser.core.syntaxgraph.edge.Edge;
 import org.maltparser.core.syntaxgraph.node.DependencyNode;
 
+import com.google.common.collect.Maps;
+
 import edu.stanford.nlp.ling.CoreAnnotations.LemmaAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
@@ -155,9 +157,9 @@ public class SyntaxAnnotator {
 
 	public static ArrayList<Token> readDocs(List<String> infiles) {
 		ArrayList<Token> tokens = new ArrayList<Token>();
-		int parOffset=0;
-		int sentenceOffset=0;
-		int tokenOffset=0;
+		int parOffset = 0;
+		int sentenceOffset = 0;
+		int tokenOffset = 0;
 		try {
 
 			for (String infile : infiles) {
@@ -166,14 +168,15 @@ public class SyntaxAnnotator {
 				String str1;
 
 				while ((str1 = in1.readLine()) != null) {
-					Token token = new Token(str1.trim(), parOffset, sentenceOffset, tokenOffset);
+					Token token = new Token(str1.trim(), parOffset,
+							sentenceOffset, tokenOffset);
 					tokens.add(token);
-					
+
 				}
-				Token lastToken=tokens.get(tokens.size()-1);
-				parOffset=lastToken.p+1;
-				sentenceOffset=lastToken.sentenceID+1;
-				tokenOffset=lastToken.tokenId+1;
+				Token lastToken = tokens.get(tokens.size() - 1);
+				parOffset = lastToken.p + 1;
+				sentenceOffset = lastToken.sentenceID + 1;
+				tokenOffset = lastToken.tokenId + 1;
 			}
 
 		} catch (Exception e) {
@@ -194,7 +197,7 @@ public class SyntaxAnnotator {
 				tokens.add(token);
 
 			}
-
+			in1.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -256,9 +259,31 @@ public class SyntaxAnnotator {
 		}
 	}
 
-	
-	public ArrayList<Token> process(String doc)
-			throws Exception {
+	public ArrayList<Token> process(String doc) throws Exception {
+
+		/*
+		 * First see if newlines separate paragraphs or if they show up in the
+		 * middle of lines.
+		 */
+		String[] sents = doc.split("\n");
+		float punctCount = 0;
+		float nonPuntCount = 0;
+		boolean newlineParagraphs = false;
+		for (String sent : sents) {
+			if (sent.length() > 0) {
+				String last = sent.substring(sent.length() - 1);
+				if (last.equals(".") || last.equals("\"") || last.equals(":")
+						|| last.equals("?") || last.equals("!")) {
+					punctCount++;
+				} else {
+					nonPuntCount++;
+				}
+			}
+		}
+
+		if (punctCount / (punctCount + nonPuntCount) > .5) {
+			newlineParagraphs = true;
+		}
 
 		if (service == null || count % 10 == 0) {
 			initialize();
@@ -276,24 +301,20 @@ public class SyntaxAnnotator {
 		int t = 0;
 		int p = 0;
 
-		boolean quotation = false;
-
 		List<CoreMap> sentences = document.get(SentencesAnnotation.class);
 		int totalSentences = sentences.size() - 1;
 
 		ArrayList<ArrayList<Token>> sentenceannos = new ArrayList<ArrayList<Token>>();
-		
-		
-		for (int cm_indx=0; cm_indx < sentences.size(); cm_indx++) {
-			CoreMap sentence=sentences.get(cm_indx);
-		
+
+		for (int cm_indx = 0; cm_indx < sentences.size(); cm_indx++) {
+			CoreMap sentence = sentences.get(cm_indx);
+
 			if (s % 100 == 0 || s == totalSentences) {
 				double ratio = ((double) s) / totalSentences;
 				System.err.print(String.format(
 						"\t%.3f (%s out of %s) processed\r", ratio, s,
 						totalSentences));
 			}
-
 
 			ArrayList<Token> annos = new ArrayList<Token>();
 
@@ -308,10 +329,6 @@ public class SyntaxAnnotator {
 				String whitespaceAfter = token.after();
 				String original = token.originalText();
 
-				if (word.equals("``")) {
-					quotation = true;
-				}
-
 				Token anno = new Token();
 				anno.original = original;
 				anno.word = word;
@@ -322,7 +339,7 @@ public class SyntaxAnnotator {
 				anno.tokenId = t;
 				anno.beginOffset = beginOffset;
 				anno.endOffset = endOffset;
-				anno.quotation = quotation;
+				anno.quotation = "O";
 				anno.setWhitespaceAfter(whitespaceAfter);
 				anno.p = p;
 				annos.add(anno);
@@ -330,67 +347,69 @@ public class SyntaxAnnotator {
 				t++;
 				whitespaceAfter = anno.whitespaceAfter;
 
-				if (word.equals("''")) {
-					quotation = false;
-				}
-
-				if (token.after().matches("\\n{2,}")) {
+				if (token.after().matches("\\n{2,}")
+						|| (token.after().matches("\\n") && newlineParagraphs)) {
 					p++;
 				}
 			}
-			
+
 			sentenceannos.add(annos);
 		}
 
 		// fix sentence mistakes (like: "Yes!" he said).
 		ArrayList<ArrayList<Token>> new_sentences = new ArrayList<ArrayList<Token>>();
-		
-		boolean lastFlag=false;
-		
-		for (int s_idx=0; s_idx<sentenceannos.size(); s_idx++) {
-			
+
+		boolean lastFlag = false;
+
+		for (int s_idx = 0; s_idx < sentenceannos.size(); s_idx++) {
+
 			boolean lowercaseFlag = false;
 
-			ArrayList<Token> annos  = sentenceannos.get(s_idx);
-			if (annos.size() > 0 && annos.get(0).word.toLowerCase().equals(annos.get(0).word) && annos.get(0).word.matches(".*[a-z].*")) {
-				lowercaseFlag=true;
+			ArrayList<Token> annos = sentenceannos.get(s_idx);
+			if (annos.size() > 0
+					&& annos.get(0).word.toLowerCase()
+							.equals(annos.get(0).word)
+					&& annos.get(0).word.matches(".*[a-z].*")) {
+				lowercaseFlag = true;
 			}
-			
+
 			if (lastFlag == true && lowercaseFlag == true) {
-				
-				ArrayList<Token> this_annos=new_sentences.get(new_sentences.size()-1);
+
+				ArrayList<Token> this_annos = new_sentences.get(new_sentences
+						.size() - 1);
 
 				for (int t_idx = 0; t_idx < annos.size(); t_idx++) {
-					Token anno=annos.get(t_idx);
+					Token anno = annos.get(t_idx);
 					this_annos.add(anno);
-				}			
-				new_sentences.set(new_sentences.size()-1, this_annos);
-			
+				}
+				new_sentences.set(new_sentences.size() - 1, this_annos);
+
 			} else {
 				ArrayList<Token> newannos = new ArrayList<Token>();
 				for (int t_idx = 0; t_idx < annos.size(); t_idx++) {
-					Token anno=annos.get(t_idx);
+					Token anno = annos.get(t_idx);
 					newannos.add(anno);
-				}	
+				}
 				new_sentences.add(newannos);
-				
+
 			}
 
-			lastFlag=false;
+			lastFlag = false;
 			if (annos.size() > 1) {
-				Token ultimate=annos.get(annos.size()-1);
-				Token penultimate=annos.get(annos.size()-2);
-				if (ultimate.word.equals("''") && (penultimate.word.equals("?") || penultimate.word.equals("!"))) {
-					lastFlag=true;
-				} 	
+				Token ultimate = annos.get(annos.size() - 1);
+				Token penultimate = annos.get(annos.size() - 2);
+				if (ultimate.word.equals("''")
+						&& (penultimate.word.equals("?") || penultimate.word
+								.equals("!"))) {
+					lastFlag = true;
+				}
 			}
 
 		}
-		
-		
-		for (int s_idx=0; s_idx<new_sentences.size(); s_idx++) {
-			ArrayList<Token> annos  = new_sentences.get(s_idx);
-		
+
+		for (int s_idx = 0; s_idx < new_sentences.size(); s_idx++) {
+			ArrayList<Token> annos = new_sentences.get(s_idx);
+
 			int id = 1;
 			String[] parseTokens = new String[annos.size()];
 			for (Token anno : annos) {
@@ -400,7 +419,7 @@ public class SyntaxAnnotator {
 				id++;
 				anno.sentenceID = s;
 			}
-			
+
 			s++;
 			DependencyStructure graph = service.parse(parseTokens);
 			SymbolTable symboltable = graph.getSymbolTables().getSymbolTable(
@@ -527,14 +546,14 @@ public class SyntaxAnnotator {
 
 	public static int getEndpoint(int i, Book book) {
 		Token token = book.tokens.get(i);
-		int corefHead=-1;
+		int corefHead = -1;
 		int head = token.coref;
 
 		if (token.coref != 0) {
 			corefHead = token.coref;
-			int hops=0;
+			int hops = 0;
 			if (corefHead != 0) {
-				head=corefHead;
+				head = corefHead;
 			}
 			while (corefHead != 0) {
 				hops++;
@@ -548,10 +567,10 @@ public class SyntaxAnnotator {
 				}
 				corefHead = tokenHead.coref;
 				if (corefHead != 0) {
-					head=corefHead;
+					head = corefHead;
 				}
 			}
-				
+
 		}
 		return head;
 	}
