@@ -3,7 +3,7 @@ package novels;
 public class Token {
 	public int sentenceID;
 	public int tokenId;
-	public boolean quotation;
+	public String quotation;
 	public int p;
 	public String word;
 	public String original;
@@ -46,7 +46,7 @@ public class Token {
 		this.pos = parts[10];
 		this.ner = parts[11];
 		this.deprel = parts[12];
-		this.quotation = Boolean.valueOf(parts[13]);
+		this.quotation = parts[13];
 		if (parts.length > 14) {
 			this.characterId = Integer.valueOf(parts[14]);
 		}
@@ -70,7 +70,7 @@ public class Token {
 		this.pos = parts[10];
 		this.ner = parts[11];
 		this.deprel = parts[12];
-		this.quotation = Boolean.valueOf(parts[13]);
+		this.quotation = parts[13];
 		if (parts.length > 14) {
 			this.characterId = Integer.valueOf(parts[14]);
 		}
