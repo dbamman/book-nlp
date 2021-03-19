@@ -40,6 +40,14 @@ public class QuotationAnnotator {
 		int doubleQuotes = 0;
 		int singleQuotes = 0;
 		for (Token token : book.tokens) {
+
+			if (token.pos.equals("``")) {
+				token.lemma="``";
+			}
+			else if (token.pos.equals("''")) {
+				token.lemma="''";
+			}
+
 			if (token.lemma.equals("``")) {
 				doubleQuotes++;
 			} else if (token.lemma.equals("`")) {
@@ -100,6 +108,7 @@ public class QuotationAnnotator {
 			}
 		} else {
 			for (Token token : book.tokens) {
+
 				if (token.lemma.equals("``")) {
 					open = true;
 					start = token.tokenId;
