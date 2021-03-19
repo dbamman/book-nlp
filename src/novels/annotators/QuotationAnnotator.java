@@ -108,7 +108,7 @@ public class QuotationAnnotator {
 			}
 		} else {
 			for (Token token : book.tokens) {
-
+				
 				if (token.lemma.equals("``")) {
 					open = true;
 					start = token.tokenId;
