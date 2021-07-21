@@ -14,6 +14,10 @@ import novels.Book;
 import novels.BookNLP;
 import novels.Token;
 import novels.annotators.CoreferenceAnnotator;
+import novels.annotators.CharacterFeatureAnnotator;
+
+import novels.annotators.QuotationAnnotator;
+
 import novels.annotators.SyntaxAnnotator;
 import novels.entities.Antecedent;
 import novels.optimization.SparseRegression;
@@ -91,11 +95,13 @@ public class TrainCoref {
 					boolean containsTruth = false;
 					for (Antecedent candidate : candidates) {
 						Token head = candidate.getHead(book);
+
 						if (head.tokenId == truth) {
 							containsTruth = true;
 						}
 					}
 					if (containsTruth) {
+
 						for (Antecedent candidate : candidates) {
 							HashMap<String, Object> features = coref
 									.getFeatures(token, candidate, book);
@@ -230,11 +236,20 @@ public class TrainCoref {
 					docPaths.get(bookId)));
 			ArrayList<Token> tokens = SyntaxAnnotator.readDoc(docPaths
 					.get(bookId));
+
+
 			Book book = new Book(tokens);
 			book.id = bookId;
 
 			BookNLP bookNLP = new BookNLP();
 			bookNLP.process(book);
+
+			QuotationAnnotator quoteFinder = new QuotationAnnotator();
+			quoteFinder.findQuotations(book);
+
+			CharacterFeatureAnnotator featureAnno = new CharacterFeatureAnnotator();
+			featureAnno.annotatePaths(book);
+
 			books.add(book);
 		}
 
