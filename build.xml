@@ -16,7 +16,7 @@
 
     <target name="compile" depends="init" description="compile the source">
 	<!-- Compile the java code from ${src} into ${build} -->
-	<javac srcdir="${src}" destdir="${build}" debug="on" source="1.5" target="1.5" deprecation="on" excludes="**/*.xml">
+	<javac srcdir="${src}" destdir="${build}" debug="on" source="1.7" target="1.7" deprecation="on" excludes="**/*.xml">
 	    <classpath>
 		<fileset dir="lib">
 		    <include name="**/*.jar" />
