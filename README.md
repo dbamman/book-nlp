@@ -1,5 +1,5 @@
-BookNLP
-=======
+## This is an archival repository for Java BookNLP (ca. 2014); for the current Python version, see <a href="https://github.com/booknlp/booknlp">the booknlp repo</a>.
+
 
 BookNLP is a natural language processing pipeline that scales to books and other long documents (in English), including:
 
