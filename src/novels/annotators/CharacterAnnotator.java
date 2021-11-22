@@ -104,9 +104,16 @@ public class CharacterAnnotator {
 
 				// if one character's name is a complete subset of another's,
 				// don't add it (e.g., Joe > Mr. Joe Gargery)
-				if (!name.equals(name2) && name2Set.containsAll(nameSet)) {
+				if (!nameSet.equals(name2Set) && name2Set.containsAll(nameSet)) {
 					flag = true;
-					continue;
+                    continue;
+				}
+				// if there are namesets that are equal (e.g. "Sakura Kinomoto"
+				// and "Kinomoto Sakura") then only add the name first in
+				// lexicographic order
+				if (nameSet.equals(name2Set) && name.compareTo(name2) > 0) {
+				    flag = true;
+                    continue;
 				}
 			}
 
